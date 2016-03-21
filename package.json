@@ -1,0 +1,22 @@
+{
+  "name": "grexgame",
+  "version": "1.0.0",
+  "description": "A game where players need to find the solution in colectiveness",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/grexgamesystem/grexgame.git"
+  },
+  "author": "Luis del Rio",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/grexgamesystem/grexgame/issues"
+  },
+  "homepage": "https://github.com/grexgamesystem/grexgame#readme",
+  "dependencies": {
+    "mysql": "^2.10.2"
+  }
+}
