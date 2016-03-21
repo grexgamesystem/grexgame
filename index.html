@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+
+<p id="demo"></p>
+
+<script>
+var x = document.getElementById("demo");
+
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+    } else { 
+        x.innerHTML = "Geolocation is not supported by this browser.";
+    }
+}
+// var position = {}, OurInterval
+getLocation();
+
+function showPosition(position) {
+    x.innerHTML = "Latitude: " + position.coords.latitude + 
+    "<br>Longitude: " + position.coords.longitude;	
+    OnInterval(position)
+
+}
+
+
+
+function CalculateDistance(lat1, lon1, lat2, lon2) {
+    var distance =
+      Math.sin(lat1 * Math.PI) * Math.sin(lat2 * Math.PI) +
+      Math.cos(lat1 * Math.PI) * Math.cos(lat2 * Math.PI) * Math.cos(Math.abs(lon1 - lon2) * Math.PI);
+    return (Math.acos(distance) * 63709.81162);
+  //   var radlat1 = Math.PI * lat1/180
+		// var radlat2 = Math.PI * lat2/180
+		// var theta = lon1-lon2
+		// var radtheta = Math.PI * theta/180
+		// var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+		// dist = Math.acos(dist)
+		// dist = dist * 180/Math.PI
+		// dist = dist * 60 * 1.1515
+		// dist = dist * 1.6370981 
+		// return (dist - 11860)
+
+}
+
+// The target longitude and latitude
+var loc = [19.4238681, -99.1671484];
+var loc = [19.425447, -99.166298]; // 200m
+// var loc = [19.429902, -99.169231]; // 400m
+
+// 11860.066241573553
+// 11860.087412701258
+// 11860.226979254607
+
+// 13678580.39038548
+// 13669459.312786262
+// 13621702.52314887
+
+// 875.1552995537372
+// 31094.953192273213
+// 37695.90345579444
+
+// Start an interval every 1s
+// Call this on an interval
+var i = 0
+function OnInterval(position) {
+  // Get the coordinates they are at
+  var lat = position.coords.latitude;
+  var long = position.coords.longitude;
+  var distance = CalculateDistance(loc[0], loc[1], lat, long);
+  console.log(distance)
+  x.innerHTML = distance + ' ' + lat + ' ' + long+ ' out of zone';
+  // Is it in the right distance? (200m)
+  if (distance <= 200) {
+    // Stop the interval
+  	x.innerHTML = distance + ' in game zone ' + i++;
+    // stopInterval(OurInterval);
+
+    // Do something here cause they reached their destination
+  }
+
+  setTimeout(function() {
+  	getLocation()
+  },100)
+}
+
+
+</script>
+
+</body>
+</html>
