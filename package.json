@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "A game where players need to find the solution in colectiveness",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/grexgamesystem/grexgame.git"
@@ -16,7 +13,14 @@
     "url": "https://github.com/grexgamesystem/grexgame/issues"
   },
   "homepage": "https://github.com/grexgamesystem/grexgame#readme",
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
-    "mysql": "^2.10.2"
+    "ejs": "2.3.3",
+    "express": "4.13.3"
+  },
+  "engines": {
+    "node": "0.12.7"
   }
 }
