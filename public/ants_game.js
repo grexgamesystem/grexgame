@@ -49,6 +49,8 @@ function showPosition(position) {
 
 }
 
+
+
 function CalculateDistance(lat1, lon1, lat2, lon2) {
     var distance =
       Math.sin(lat1 * Math.PI) * Math.sin(lat2 * Math.PI) +
@@ -68,14 +70,16 @@ function OnInterval(position) {
   var long = position.coords.longitude;
   var distance = CalculateDistance(loc[0], loc[1], lat, long);
   console.log(distance)
-  x.innerHTML = distance + ' ' + lat + ' ' + long+ ' out of zone';
+  x.innerHTML = distance + ' ' + lat + ' ' + long+ ' out of zone' + i;
   // Is it in the right distance? (200m)
   if (distance <= 200) {
     // Stop the interval
-    x.innerHTML = distance + ' in game zone ' + i++;
+    x.innerHTML = distance + ' in game zone ' + i;
 
     // Do something here cause they reached their destination
   }
+
+  i++;
 
   setTimeout(function() {
     getLocation()
