@@ -1,0 +1,11 @@
+{
+  "dev": {
+    "driver": "pg",
+    "user": "root",
+    "password": "root",
+    "host": "localhost",
+    "database": "grex",
+    "schema": "grex_schema"
+  }
+
+}
