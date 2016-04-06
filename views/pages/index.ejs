@@ -1,15 +1,50 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <%# include ../partials/header.ejs %>
+  <% include ../partials/header.ejs %>
 </head>
 
 <body>
+<div class="row">
+<div class="col-sm-12">
+<div id="demo"></div>
+  <div class="message"></div>
+  <div class="gamestatus"></div>
 
-  <%# include ../partials/nav.ejs %>
+  <div class="buttons">
+    <button class="create btn">Create game</button>
+    <button class="join btn">Join game</button>
+  </div>
+</div>
+</div>
 
-<p id="demo"></p>
-<script type="text/javascript" src="ants_game.js"></script>
+<% include ../partials/footer.ejs %>
+<script type="text/javascript">
+  $(".create").on('click', function() {
+    game('create');
+  })
+  $(".join").on('click', function() {
+    game('join');
+  })
+
+  function game(action) {
+
+    $('.message').html('getting your location, wait a sec...');
+    navigator.geolocation.getCurrentPosition(function(pos) {
+      var url = 'api/ant/'+action+'?latitude='+pos.coords.latitude+'&longitude='+pos.coords.longitude
+      console.log(url);
+      $.post(url, function(res) {
+        console.log(res)
+        var message = res.message
+        $(".message").html(message)
+        if(res.success) {
+          $(".buttons").hide()
+          window.location = '/game/'+res.game
+        }
+      })
+    })
+  }
+</script>
 
 </body>
 </html>

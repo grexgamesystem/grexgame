@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../partials/header.ejs %>
+</head>
+
+<body>
+<div class="row">
+<div class="col-sm-12">
+<div id="demo"></div>
+  <div class="message">The game is about to start</div>
+  <div class="gamestatus"></div>
+
+</div>
+</div>
+
+<% include ../partials/footer.ejs %>
+<!-- <script type="text/javascript" src="/js/location.js"></script> -->
+<script type="text/javascript">
+
+getLocation();
+
+var id, options;
+function getLocation() {
+  options = {
+    enableHighAccuracy: true,
+    frequency: 200,
+    maximumAge: 0
+  };
+  if (navigator.geolocation) {
+      id = navigator.geolocation.watchPosition(success, error, options);
+  } else { 
+      $('.message').html("Geolocation is not supported by this browser.");
+  }
+}
+var status = 0;
+function success(pos) {
+  $(".message").html('Search for food');
+  if(status == 0) {
+    //no food found
+    $.post('/api/ant/food?lat='+pos.coords.latitude+'&long='+pos.coords.longitude+'&game=<%= game %>', function(res) {
+      console.log(res);
+      status = res.status;
+      if(status == 1) {
+        $('.message').html('Drop the food at the base');
+        $('body').css({ background: '#ccf', color: '#fff'})
+      } else {
+        $(".message").html('Search for food');
+        $('body').css({ background: '#fff', color: '#000'})
+        res.distances.forEach(function(distance) {
+          if(distance < 15) {
+            $('.message').html('You\'re getting closer');
+            $('body').css({ background: '#B3B516', color: '#fff'})
+          }
+          else if(distance > 35) {
+            $('.message').html('You\'re to far, get near the base');
+            $('body').css({ background: '#f00', color: '#fff'})
+          }
+        })
+      }
+    })
+  }
+  else if(status == 1) {
+    $.post('/api/ant/drop?lat='+pos.coords.latitude+'&long='+pos.coords.longitude+'&game=<%= game %>', function(res) {
+      console.log(res);
+      status = res.status;
+      if(status == 0) {
+        $(".message").html('Collect more food');
+        $('body').css({ background: '#fff', color: '#000'})
+      }
+
+    })
+  }
+  else if(status == 2) {
+    $('.message').html('Congratulations you\'ve collected all the food')
+    $('body').css({ background: '#fff', color: '#000'})
+    $(".gamestatus").html('<a href="/" class="btn btn-primary">return home</a>');
+    navigator.geolocation.clearWatch(id);
+  }
+  
+  console.log(pos);
+}
+
+function error(err) {
+  console.warn('ERROR(' + err.code + '): ' + err.message);
+}
+
+
+</script>
+
+</body>
+</html>
