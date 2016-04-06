@@ -19,6 +19,7 @@
   "dependencies": {
     "ejs": "2.3.3",
     "express": "4.13.3",
+    "orm": "^2.1.30",
     "pg": "^4.5.1"
   },
   "engines": {
