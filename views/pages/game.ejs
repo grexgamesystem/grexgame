@@ -96,6 +96,11 @@ function updateGame(pos) {
           $(".message").html('Collect more food');
           $('body').css({ background: '#fff', color: '#000'})
         }
+        if(status == 2) {
+          $('.message').html('Congratulations you and your team collected all the food')
+          $('body').css({ background: '#fff', color: '#000'})
+          $(".gamestatus").append('<div><a href="/" class="btn btn-primary">return home</a></div>');
+        }
 
       })
     }
