@@ -1,4 +1,4 @@
-var pg = require('pg');
+var orm = require('orm');
 
 var dbHost = process.env.DB_HOST || 'localhost'
 var dbName = process.env.DB_NAME || 'grex'
@@ -7,18 +7,9 @@ var dbPass = process.env.DB_PASSWORD || 'root'
 
 var conString = "postgres://"+dbUser+":"+dbPass+"@"+dbHost+":5432/"+dbName;
 
-pg.connect(conString, function(err, client, done) {
-  if(err) {
-    return console.error('error fetching client from pool', err);
-  }
-  client.query('SELECT $1::int AS number', ['1'], function(err, result) {
-    //call `done()` to release the client back to the pool
-    done();
+exports.db = orm.connect(conString, function (err, db) {
+  if (err) throw err;
+  return db
+})
 
-    if(err) {
-      return console.error('error running query', err);
-    }
-    console.log(result.rows[0].number);
-    //output: 1
-  });
-});
+
