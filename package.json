@@ -17,6 +17,7 @@
     "start": "node index.js"
   },
   "dependencies": {
+    "db-migrate": "^0.9.23",
     "ejs": "2.3.3",
     "express": "4.13.3",
     "orm": "^2.1.30",
