@@ -77,7 +77,7 @@ function updateGame(pos) {
           }
           console.log(far);
 
-          if(!far) {          
+          if(!far && !near) {          
             $(".message").html('Search for food');
             $('body').css({ background: '#fff', color: '#000'})
           }
