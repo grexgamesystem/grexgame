@@ -27,7 +27,7 @@ exports.nearFood = function(params, gamesResult) {
 					longitude: params.long
 				}}
 				var distance = getDistance(currentLocation,food) 
-				if(distance < 5) {
+				if(distance < 10) {
 					status = 1 //food found
 					Food.get(food.id, function(err, foodObj) {
 						if (err) throw err;
@@ -62,7 +62,7 @@ exports.dropFood = function(params, gamesResult) {
 		}}
 		var distance = getDistance(currentLocation,game);
 		var status = 1
-		if(distance < 5) {
+		if(distance < 10) {
 			status = 0
 		}
 		gamesResult({ distance: distance, status: status }); 
@@ -157,7 +157,7 @@ function createNewGame(currentLocation, result) {
 	})
 }
 function createFood(items) {
-	var R = 0.0002 // distance radius (lat + R)
+	var R = 0.00025 // distance radius (lat + R)
 	var x1 = items.lat + R // center + distance
 	var y1 = items.long
 	console.log(x1+' '+y1)
@@ -170,7 +170,7 @@ function createFood(items) {
 			lat: x2,
 			long: y2,
 			location_id: items.id,
-			food_left: 5
+			food_left: 10
 		}],function(err, items) {
 			if(err) throw err;
 		})
