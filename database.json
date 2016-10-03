@@ -1,7 +1,7 @@
 {
   "dev": {
-    "driver": "pg",
-    "user": "{{env `DB_USER`}}",
+    "driver": "mysql",
+    "user": "root",
     "password": "root",
     "host": "localhost",
     "database": "grex",

@@ -15,6 +15,12 @@ app.set('view engine', 'ejs');
 app.get('/', function(request, response) {
   response.render('pages/index');
 });
+app.get('/ants', function(request, response) {
+  response.render('pages/ants');
+});
+app.get('/shape', function(request, response) {
+  response.render('pages/shape');
+});
 
 app.post('/api/ant/:action', function(request, response) {
 	action = response.req.params.action;
@@ -41,11 +47,37 @@ app.post('/api/ant/:action', function(request, response) {
 	}
 })
 
+app.post('/api/shape/:action', function(request, response) {
+	action = response.req.params.action;
+	if (action == 'player') {
+		
+	} else {
+		var location = {
+			coords: response.req.query
+		}
+		Location.nearGames(action, location, function(res) {
+			console.log(res);
+			response.json(res);
+		})
+	}
+})
+
 app.get('/game/:id', function(request, response) {
 	game = response.req.params.id
 	Location.getFood(game, function(res) {
 		console.log(res)
 	  response.render('pages/game', {
+	  	game: game
+	  });
+	})
+});
+
+
+app.get('/shape-game/:id', function(request, response) {
+	game = response.req.params.id
+	Location.getFood(game, function(res) {
+		console.log(res)
+	  response.render('pages/shape-game', {
 	  	game: game
 	  });
 	})

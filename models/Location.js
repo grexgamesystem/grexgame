@@ -9,6 +9,7 @@ var Location = db.define("location", {
     lat: Number,
     long: Number,
     is_active: Boolean,
+    game_type: Number,
     created_at: Number,
     updated_at: Number
 });
@@ -72,7 +73,12 @@ exports.dropFood = function(params, gamesResult) {
 exports.nearGames = function(action, currentLocation, gamesResult) {
 	console.log(currentLocation);
 	awayDistance = 30
-	Location.find({ is_active: true }).all(function(err, games) {
+	if(action == 'create-shape') {
+		var game = { is_active: true, game_type: 2 }
+	} else {
+		var game = { is_active: true, game_type: 1 }
+	}
+	Location.find(game).all(function(err, games) {
 		if(err) throw err;
 		// console.log(games);
 		if(games.length > 0) {
@@ -88,7 +94,7 @@ exports.nearGames = function(action, currentLocation, gamesResult) {
 			// console.log(nearGame)
 
 			if(nearGame > -1) {
-				if(action == 'create') {
+				if(action == 'create' || action == 'create-shape') {
 					further = awayDistance - Math.round(distances[nearGame], 2)
 					gamesResult({ success: 0, 
 												message: "there's a game nearby, you can join it or create a new game "+further+"m further", 
@@ -103,6 +109,11 @@ exports.nearGames = function(action, currentLocation, gamesResult) {
 					createNewGame(currentLocation, function(res) {
 						gamesResult(res);
 					});
+				}
+				else if(action == 'create-shape'){
+					createNewShapeGame(currentLocation, function(res) {
+						gamesResult({success: 1});
+					});
 				} else {
 					gamesResult({ success: 0, 
 												message: "there're no nearby games, move closer to one or create a new one"
@@ -114,7 +125,11 @@ exports.nearGames = function(action, currentLocation, gamesResult) {
 			createNewGame(currentLocation, function(res) {
 				gamesResult(res);
 			});
-		}
+		} else if(action == 'create-shape'){
+				createNewShapeGame(currentLocation, function(res) {
+					gamesResult(res);
+				});
+			}
 	});
 }
 
@@ -141,6 +156,7 @@ function createNewGame(currentLocation, result) {
 	Location.create([{ 
 		lat: currentLocation.coords.latitude, 
 		long: currentLocation.coords.longitude,
+		game_type: 1,
 		is_active: true
 	}], function(err, items) {
 		if(err) throw err;
@@ -158,14 +174,14 @@ function createNewGame(currentLocation, result) {
 }
 function createFood(items) {
 	var R = 0.00025 // distance radius (lat + R)
-	var x1 = items.lat + R // center + distance
-	var y1 = items.long
+	var x1 = parseFloat(items.lat) + R // center + distance
+	var y1 = parseFloat(items.long)
 	console.log(x1+' '+y1)
-	for (var i = 3; i > 0; i--) {
+	for (var i = 10; i > 0; i--) {
 		var a = Math.random() * 6.28319 // random angle in radians 360/(180*PI)
 		var x2 = x1 + (R * Math.cos(a))
 		var y2 = y1 + (R * Math.cos(a))
-		console.log(x2+' '+y2)
+		console.log('-------------',x2,y2)
 		Food.create([{
 			lat: x2,
 			long: y2,
@@ -177,6 +193,27 @@ function createFood(items) {
 	}
 	return true
 }
+
+function createNewShapeGame(currentLocation, result) {
+	Location.create([{ 
+		lat: currentLocation.coords.latitude, 
+		long: currentLocation.coords.longitude,
+		game_type: 2,
+		is_active: true
+	}], function(err, items) {
+		if(err) throw err;
+		Player.create([{
+			location_id: items[0].id
+		}], function(err, item) {
+			if(err) throw err;
+			result({ success: 1, 
+							message: "game No. ("+items[0].id+") created, wait for other players to join", 
+							game: items[0].id })
+		})
+	})
+}
+
+
 function CalculateDistance(lat1, lon1, lat2, lon2) {
   var R = 6371000; // Radius of the earth in m
   var dLat = deg2rad(lat2-lat1);  // deg2rad below

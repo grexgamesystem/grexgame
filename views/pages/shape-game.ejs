@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../partials/header.ejs %>
+</head>
+
+<body>
+<div class="row">
+<div class="col-sm-12">
+<div id="demo"></div>
+  <div class="message">The game is about to start</div>
+  <div class="gamestatus"></div>
+
+</div>
+</div>
+
+<% include ../partials/footer.ejs %>
+<script type="text/javascript">
+
+getLocation();
+
+var id, options;
+function getLocation() {
+  options = {
+    enableHighAccuracy: true,
+    // frequency: 200,
+    maximumAge: 0
+  };
+  if (navigator.geolocation) {
+      // id = navigator.geolocation.watchPosition(success, error, options);
+      navigator.geolocation.getCurrentPosition(success, error, options);
+  } else { 
+      $('.message').html("Geolocation is not supported by this browser.");
+  }
+}
+var status = 0;
+function success(pos) {
+  // pos = pos;
+  updateGame(pos);
+  console.log(pos);
+}
+
+function updateGame(pos) {
+
+  if(pos.coords.accuracy < 50) {
+
+    if(status == 0) {
+      //no food found
+      $.post('/api/shape/player?lat='+pos.coords.latitude+'&long='+pos.coords.longitude+'&game=<%= game %>', function(res) {
+        console.log(res);
+
+        navigator.geolocation.getCurrentPosition(success, error, options);
+
+        status = res.status;
+        if(status == 1) { 
+          $('.message').html('Drop the food at the base');
+          $('body').css({ background: '#ccf', color: '#fff'})
+        } else {
+          // notNear = tr
+          var near = res.distances.some(function(distance) {
+            if(distance < 15) {
+              $('.message').html('You\'re getting closer');
+              $('body').css({ background: '#B3B516', color: '#fff'})
+              notNear = false
+            }
+            return distance < 15
+          })
+          console.log(near);
+          if(!near) {
+            var far = res.distances.some(function(distance) {
+              if(distance > 35) {
+                $('.message').html('You\'re to far from any food');
+                $('body').css({ background: '#f00', color: '#fff'})
+              }
+              return distance > 35
+            })
+          }
+          console.log(far);
+
+          if(!far && !near) {          
+            $(".message").html('Search for food');
+            $('body').css({ background: '#fff', color: '#000'})
+          }
+
+        }
+      })
+    }
+    else if(status == 1) {
+      $.post('/api/ant/drop?lat='+pos.coords.latitude+'&long='+pos.coords.longitude+'&game=<%= game %>', function(res) {
+        console.log(res);
+
+        navigator.geolocation.getCurrentPosition(success, error, options);
+
+        status = res.status;
+        if(status == 0) {
+          $(".message").html('Collect more food');
+          $('body').css({ background: '#fff', color: '#000'})
+        }
+        if(status == 2) {
+          $('.message').html('Congratulations you and your team collected all the food')
+          $('body').css({ background: '#fff', color: '#000'})
+          $(".gamestatus").append('<div><a href="/" class="btn btn-primary">return home</a></div>');
+        }
+
+      })
+    }
+    else if(status == 2) {
+      $('.message').html('Congratulations you and your team collected all the food')
+      $('body').css({ background: '#fff', color: '#000'})
+      $(".gamestatus").append('<div><a href="/" class="btn btn-primary">return home</a></div>');
+    }
+
+  } else {
+    navigator.geolocation.getCurrentPosition(success, error, options); 
+  }
+
+}
+
+function error(err) {
+  console.warn('ERROR(' + err.code + '): ' + err.message);
+}
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../partials/header.ejs %>
+</head>
+
+<body>
+<div class="row">
+<div class="col-sm-12">
+<div id="demo"></div>
+  <div class="message"></div>
+  <div class="gamestatus"></div>
+
+  <div class="buttons">
+    <button class="instructions btn"  data-toggle="modal" data-target="#instructions">How to play</button>
+    <button class="create btn">Create game</button>
+    <button class="join btn">Join game</button>
+  </div>
+</div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="instructions" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">How to play grex shape finding</h4>
+      </div>
+      <div class="modal-body">
+        Go to an open space with some friends, start the game and start moving arround with your friends, it depends on how near or far you're from the other players that will make you find the correct position, when all players find each position that completes the hidden shape you'll discover what you just draw and unlock the next level
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% include ../partials/footer.ejs %>
+<script type="text/javascript">
+  $(".create").on('click', function() {
+    game('create-shape');
+  })
+  $(".join").on('click', function() {
+    game('join');
+  })
+
+  function game(action) {
+
+    $('.message').html('getting your location, wait a sec...');
+    navigator.geolocation.getCurrentPosition(function(pos) {
+      var url = 'api/shape/'+action+'?latitude='+pos.coords.latitude+'&longitude='+pos.coords.longitude
+      console.log(url);
+      $.post(url, function(res) {
+        console.log(res)
+        var message = res.message
+        $(".message").html(message)
+        if(res.success) {
+          $(".buttons").hide()
+          window.location = '/shape-game/'+res.game
+        }
+      })
+    })
+  }
+</script>
+
+</body>
+</html>
