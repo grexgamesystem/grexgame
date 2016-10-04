@@ -43,7 +43,7 @@
     game('create-shape');
   })
   $(".join").on('click', function() {
-    game('join');
+    game('join-shape');
   })
 
   function game(action) {
@@ -58,7 +58,7 @@
         $(".message").html(message)
         if(res.success) {
           $(".buttons").hide()
-          window.location = '/shape-game/'+res.game
+          window.location = '/shape-game/'+res.game+'?pId='+res.player
         }
       })
     })

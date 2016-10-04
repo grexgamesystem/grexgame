@@ -5,18 +5,31 @@
 </head>
 
 <body>
-<div class="row">
+<!-- <div class="row"> -->
 <div class="col-sm-12">
 <div id="demo"></div>
   <div class="message">The game is about to start</div>
   <div class="gamestatus"></div>
+</div>
+<!-- </div> -->
 
-</div>
-</div>
+<div id="map"></div>
 
 <% include ../partials/footer.ejs %>
 <script type="text/javascript">
 
+console.log('<%= game.location.lat %>')
+console.log('<%= game.location.long %>')
+
+var map;
+function initMap() {
+  // Create a map object and specify the DOM element for display.
+  map = new google.maps.Map(document.getElementById('map'), {
+    scrollwheel: false,
+    zoom: 18,
+    center: {lat: <%= game.location.lat %>, lng: <%= game.location.long %>}
+  })
+}
 getLocation();
 
 var id, options;
@@ -36,92 +49,70 @@ function getLocation() {
 var status = 0;
 function success(pos) {
   // pos = pos;
+
+  $('.message').html('a');
   updateGame(pos);
-  console.log(pos);
+  // console.log(pos);
 }
 
+var markers = [];
+
 function updateGame(pos) {
+  // if(pos.coords.accuracy < 50) {
 
-  if(pos.coords.accuracy < 50) {
+    //no food found
+      $('.message').html('a');
+    $.post('/api/shape/player?lat='+pos.coords.latitude+'&long='+pos.coords.longitude+'&player=<%= player %>&game=<%= game.location.id %>', function(res) {
+      console.log(res);
+      $('.message').html('a');
 
-    if(status == 0) {
-      //no food found
-      $.post('/api/shape/player?lat='+pos.coords.latitude+'&long='+pos.coords.longitude+'&game=<%= game %>', function(res) {
-        console.log(res);
-
+      setTimeout(function(){
         navigator.geolocation.getCurrentPosition(success, error, options);
+      }, 1000);
 
-        status = res.status;
-        if(status == 1) { 
-          $('.message').html('Drop the food at the base');
-          $('body').css({ background: '#ccf', color: '#fff'})
+      status = res.status;
+
+      var distances = []
+      res.players.forEach(function(player, k) {
+
+        if(markers[k]){
+          markers[k].setPosition( new google.maps.LatLng(player.lat,player.long) )
         } else {
-          // notNear = tr
-          var near = res.distances.some(function(distance) {
-            if(distance < 15) {
-              $('.message').html('You\'re getting closer');
-              $('body').css({ background: '#B3B516', color: '#fff'})
-              notNear = false
-            }
-            return distance < 15
-          })
-          console.log(near);
-          if(!near) {
-            var far = res.distances.some(function(distance) {
-              if(distance > 35) {
-                $('.message').html('You\'re to far from any food');
-                $('body').css({ background: '#f00', color: '#fff'})
-              }
-              return distance > 35
-            })
+          markers[k] = new google.maps.Marker({
+            position: { lat: parseFloat(player.lat), lng: parseFloat(player.long) },
+            map: map,
+            icon: '/assets/redpoint.png'
+          }) 
+        }
+
+        res.players.forEach(function(nextPlayer, j) {
+          // console.log(nextPlayer.lat, player.lat);
+          if(k != j) {
+            distance = Math.round(Math.sqrt(Math.pow((nextPlayer.lat - player.lat) * 6371, 2) + Math.pow((nextPlayer.long - player.long) * 6371, 2)), 2);
+            distances.push({distance: distance, from: j, to: k })
           }
-          console.log(far);
-
-          if(!far && !near) {          
-            $(".message").html('Search for food');
-            $('body').css({ background: '#fff', color: '#000'})
-          }
-
-        }
+        })  
       })
-    }
-    else if(status == 1) {
-      $.post('/api/ant/drop?lat='+pos.coords.latitude+'&long='+pos.coords.longitude+'&game=<%= game %>', function(res) {
-        console.log(res);
 
-        navigator.geolocation.getCurrentPosition(success, error, options);
+      // console.log(distances);
 
-        status = res.status;
-        if(status == 0) {
-          $(".message").html('Collect more food');
-          $('body').css({ background: '#fff', color: '#000'})
-        }
-        if(status == 2) {
-          $('.message').html('Congratulations you and your team collected all the food')
-          $('body').css({ background: '#fff', color: '#000'})
-          $(".gamestatus").append('<div><a href="/" class="btn btn-primary">return home</a></div>');
-        }
+    })
 
-      })
-    }
-    else if(status == 2) {
-      $('.message').html('Congratulations you and your team collected all the food')
-      $('body').css({ background: '#fff', color: '#000'})
-      $(".gamestatus").append('<div><a href="/" class="btn btn-primary">return home</a></div>');
-    }
-
-  } else {
-    navigator.geolocation.getCurrentPosition(success, error, options); 
-  }
+  // } else {
+  //   navigator.geolocation.  (success, error, options); 
+  // }
 
 }
 
 function error(err) {
+
+  $('.message').html(err.message);
   console.warn('ERROR(' + err.code + '): ' + err.message);
 }
 
 
 </script>
 
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBV19vMwMey-S6aGvB8xD1okhAYJnB_LkM&callback=initMap" async defer></script>
 </body>
 </html>

@@ -26,13 +26,13 @@ app.post('/api/ant/:action', function(request, response) {
 	action = response.req.params.action;
 	if(action == 'food') {
 		Location.nearFood(response.req.query, function(res) {
-			console.log(res);
+			// console.log(res);
 			response.json(res);
 		})
 
 	} else if(action == 'drop') {
 		Location.dropFood(response.req.query, function(res) {
-			console.log(res);
+			// console.log(res);
 			response.json(res);
 		})
 
@@ -41,7 +41,7 @@ app.post('/api/ant/:action', function(request, response) {
 			coords: response.req.query
 		}
 		Location.nearGames(action, location, function(res) {
-			console.log(res);
+			// console.log(res);
 			response.json(res);
 		})
 	}
@@ -50,13 +50,16 @@ app.post('/api/ant/:action', function(request, response) {
 app.post('/api/shape/:action', function(request, response) {
 	action = response.req.params.action;
 	if (action == 'player') {
-		
+		Location.shapeCalculation(response.req.query, function(res) {
+			// console.log(res);
+			response.json(res);
+		})
 	} else {
 		var location = {
 			coords: response.req.query
 		}
 		Location.nearGames(action, location, function(res) {
-			console.log(res);
+			// console.log(res);
 			response.json(res);
 		})
 	}
@@ -75,10 +78,11 @@ app.get('/game/:id', function(request, response) {
 
 app.get('/shape-game/:id', function(request, response) {
 	game = response.req.params.id
-	Location.getFood(game, function(res) {
-		console.log(res)
+	Location.getPlayers(game, function(res) {
+		// console.log(res)
 	  response.render('pages/shape-game', {
-	  	game: game
+	  	game: res,
+	  	player: response.req.query.pId
 	  });
 	})
 });

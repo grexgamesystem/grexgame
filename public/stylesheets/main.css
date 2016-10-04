@@ -1,10 +1,19 @@
-body {
+html, body {
 	font-size: 30px;
 	text-align: center;
-	padding-top: 40px;
+	height: 100%;
+	width: 100%;
+  position: absolute;
 }
 .btn {
 	font-size: 30px;
 	padding: 10px;
 	margin: 20px;
+}
+#demo {
+	margin-top: 40px;
+}
+#map {
+	width: 100%;
+	height: calc(100% - 80px);
 }

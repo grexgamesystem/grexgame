@@ -15,6 +15,31 @@ var Location = db.define("location", {
 });
 
 //this is actually a controller TODO move to controllers
+exports.shapeCalculation = function(params, gamesResult) {
+	Player.get(params.player, function(err, player) {
+		// console.log(item);
+		player.lat = params.lat;
+		player.long = params.long;
+		player.save()
+	})
+
+	Player.find({ location_id: params.game }).all(function(err, items) {
+		if(err) throw err;
+		gamesResult({ players: items })
+	})
+}
+
+exports.getPlayers = function(gameId, res) {
+	Player.find({ location_id: gameId }).all(function(err, players) {
+		if(err) throw err;
+		Location.get(gameId, function(err, location) {
+			if(err) throw err;
+			res({players: players, location: location})
+		})
+	})
+}
+
+
 exports.nearFood = function(params, gamesResult) {
 	Food.find({ location_id: params.game, food_left: orm.gt(0) }).all(function(err, items) {
 		if(err) throw err;
@@ -73,14 +98,14 @@ exports.dropFood = function(params, gamesResult) {
 exports.nearGames = function(action, currentLocation, gamesResult) {
 	console.log(currentLocation);
 	awayDistance = 30
-	if(action == 'create-shape') {
+	if(action == 'create-shape' || action == 'join-shape') {
 		var game = { is_active: true, game_type: 2 }
 	} else {
 		var game = { is_active: true, game_type: 1 }
 	}
 	Location.find(game).all(function(err, games) {
 		if(err) throw err;
-		// console.log(games);
+		console.log(games);
 		if(games.length > 0) {
 			console.log('nearby game')
 			distances = []
@@ -100,6 +125,7 @@ exports.nearGames = function(action, currentLocation, gamesResult) {
 												message: "there's a game nearby, you can join it or create a new game "+further+"m further", 
 												game: games[nearGame].id })
 				} else {
+					console.log('joining')
 					joinGame(games[nearGame], function(res) {
 						gamesResult(res);
 					})
@@ -126,10 +152,14 @@ exports.nearGames = function(action, currentLocation, gamesResult) {
 				gamesResult(res);
 			});
 		} else if(action == 'create-shape'){
-				createNewShapeGame(currentLocation, function(res) {
-					gamesResult(res);
-				});
-			}
+			createNewShapeGame(currentLocation, function(res) {
+				gamesResult(res);
+			});
+		}	else {
+			gamesResult({ success: 0, 
+										message: "there're no nearby games, move closer to one or create a new one"
+									})
+		}
 	});
 }
 
@@ -148,7 +178,9 @@ function joinGame(game, result) {
 		if(err) throw err;
 		result({ success: 1, 
 						message: "You've joined game No. ("+game.id+")", 
-						game: game.id })
+						game: game.id,
+						player: items[0].id
+					})
 	})
 }
 
@@ -168,7 +200,8 @@ function createNewGame(currentLocation, result) {
 			if(err) throw err;
 			result({ success: 1, 
 							message: "game No. ("+items[0].id+") created, wait for other players to join", 
-							game: items[0].id })
+							game: items[0].id,
+							player: item[0].id })
 		})
 	})
 }
@@ -208,7 +241,8 @@ function createNewShapeGame(currentLocation, result) {
 			if(err) throw err;
 			result({ success: 1, 
 							message: "game No. ("+items[0].id+") created, wait for other players to join", 
-							game: items[0].id })
+							game: items[0].id,
+							player: item[0].id })
 		})
 	})
 }
