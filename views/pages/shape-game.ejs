@@ -26,7 +26,7 @@ function initMap() {
   // Create a map object and specify the DOM element for display.
   map = new google.maps.Map(document.getElementById('map'), {
     scrollwheel: false,
-    zoom: 18,
+    zoom: 20,
     center: {lat: <%= game.location.lat %>, lng: <%= game.location.long %>}
   })
 }
@@ -61,10 +61,10 @@ function updateGame(pos) {
   // if(pos.coords.accuracy < 50) {
 
     //no food found
-      $('.message').html('a');
+      // $('.message').html('a');
     $.post('/api/shape/player?lat='+pos.coords.latitude+'&long='+pos.coords.longitude+'&player=<%= player %>&game=<%= game.location.id %>', function(res) {
       console.log(res);
-      $('.message').html('a');
+      // $('.message').html('a');
 
       setTimeout(function(){
         navigator.geolocation.getCurrentPosition(success, error, options);
@@ -72,7 +72,7 @@ function updateGame(pos) {
 
       status = res.status;
 
-      var distances = []
+      var distances = [], rel = []
       res.players.forEach(function(player, k) {
 
         if(markers[k]){
@@ -81,20 +81,47 @@ function updateGame(pos) {
           markers[k] = new google.maps.Marker({
             position: { lat: parseFloat(player.lat), lng: parseFloat(player.long) },
             map: map,
+            label: ''+k,
             icon: '/assets/redpoint.png'
           }) 
         }
-
+        
+        rel[k] = { close: 0, mid: 0, far: 0, x: player.lat, y: player.long }
         res.players.forEach(function(nextPlayer, j) {
           // console.log(nextPlayer.lat, player.lat);
-          if(k != j) {
-            distance = Math.round(Math.sqrt(Math.pow((nextPlayer.lat - player.lat) * 6371, 2) + Math.pow((nextPlayer.long - player.long) * 6371, 2)), 2);
+          if(k >= j && k != j) {
+            distance = Math.sqrt(Math.pow((nextPlayer.lat - player.lat) * 6371, 2) + Math.pow((nextPlayer.long - player.long) * 6371, 2));
             distances.push({distance: distance, from: j, to: k })
+
+            // console.log(k,j)
+            if(distance < 0.3) {
+              rel[k].close += 1
+              rel[j].close += 1
+            }
+            if(distance > 0.3 && distance < 1.1) {
+              rel[k].mid += 1
+              rel[j].mid += 1
+            }
+            if(distance > 1.1) {
+              rel[k].far += 1
+              rel[j].far += 1
+            }
           }
         })  
       })
 
-      // console.log(distances);
+      console.log(distances);
+      console.log(rel);
+
+
+      rel.forEach(function(piece, k) {
+        if(piece.close > 0 || piece.mid > 2 ||  piece.mid < 2 ||  piece.far < 2 ) {
+          markers[k].setIcon('/assets/redpoint.png')
+        } else {
+          markers[k].setIcon('/assets/point.png')
+        }
+      })
+
 
     })
 

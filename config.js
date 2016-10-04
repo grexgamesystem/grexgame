@@ -1,9 +1,9 @@
 var orm = require('orm');
 
-var dbHost = process.env.DB_HOST || 'localhost'
-var dbName = process.env.DB_NAME || 'grex'
-var dbUser = process.env.DB_USER || 'root'
-var dbPass = process.env.DB_PASSWORD || 'root'
+var dbHost = process.env.GREX_DB_HOST || 'localhost'
+var dbName = process.env.GREX_DB_NAME || 'grex'
+var dbUser = process.env.GREX_DB_USER || 'root'
+var dbPass = process.env.GREX_DB_PASSWORD || 'root'
 
 var conString = process.env.DATABASE_URL ? process.env.DATABASE_URL : "mysql://"+dbUser+":"+dbPass+"@"+dbHost+":3306/"+dbName;
 
