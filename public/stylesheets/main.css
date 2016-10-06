@@ -3,7 +3,9 @@ html, body {
 	text-align: center;
 	height: 100%;
 	width: 100%;
-  position: absolute;
+	max-width: 1200px;
+	margin: auto;
+  position: auto;
 }
 .btn {
 	font-size: 30px;
@@ -17,7 +19,9 @@ html, body {
 	width: 100%;
 	height: calc(100% - 80px);
 }
-
+video {
+	width: 100%;
+}
 
 .ribbon-wrapper-green {
   width: 140px;
