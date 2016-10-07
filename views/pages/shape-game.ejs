@@ -50,25 +50,19 @@ var status = 0;
 function success(pos) {
   // pos = pos;
 
-  $('.message').html('a');
+  $('.message').html('Found the hidden shape');
   updateGame(pos);
   // console.log(pos);
 }
 
-var markers = [];
+var markers = [], correct_confirm=0;
 
 function updateGame(pos) {
   // if(pos.coords.accuracy < 50) {
 
-    //no food found
-      // $('.message').html('a');
     $.post('/api/shape/player?lat='+pos.coords.latitude+'&long='+pos.coords.longitude+'&player=<%= player %>&game=<%= game.location.id %>', function(res) {
       console.log(res);
-      // $('.message').html('a');
 
-      setTimeout(function(){
-        navigator.geolocation.getCurrentPosition(success, error, options);
-      }, 1000);
 
       status = res.status;
 
@@ -81,12 +75,12 @@ function updateGame(pos) {
           markers[k] = new google.maps.Marker({
             position: { lat: parseFloat(player.lat), lng: parseFloat(player.long) },
             map: map,
-            label: ''+k,
+            label: { text: ''+k, color: '#fff'},
             icon: '/assets/redpoint.png'
           }) 
         }
         
-        rel[k] = { close: 0, mid: 0, far: 0, x: player.lat, y: player.long }
+        rel[k] = { close: 0, mid: 0, far: 0, x: player.lat, y: player.long, id: player.id }
         res.players.forEach(function(nextPlayer, j) {
           // console.log(nextPlayer.lat, player.lat);
           if(k >= j && k != j) {
@@ -113,14 +107,39 @@ function updateGame(pos) {
       console.log(distances);
       console.log(rel);
 
-
+      var shape='point', correct = 0;
       rel.forEach(function(piece, k) {
-        if(piece.close > 0 || piece.mid > 2 ||  piece.mid < 2 ||  piece.far < 2 ) {
-          markers[k].setIcon('/assets/redpoint.png')
+        if(piece.id == '<%= player %>') {
+          shape = 'star'
         } else {
-          markers[k].setIcon('/assets/point.png')
+          shape='point'
+        }
+
+        if(piece.close > 0 || piece.mid > 2 ||  piece.mid < 2 ||  piece.far < 2 ) {
+          markers[k].setIcon('/assets/'+shape+'_red.png')
+        } else {
+          markers[k].setIcon('/assets/'+shape+'_green.png')
+          correct +=1
         }
       })
+
+      if(correct == rel.length) {
+        correct_confirm += 1
+      } else {
+        correct_confirm = 0
+      }
+
+      console.log(correct, correct_confirm)
+
+      if(correct_confirm == 10) {
+        $('.message').html('Great you found the hidden circle!');
+        // todo make game inactive
+      } else {
+        setTimeout(function(){
+          navigator.geolocation.getCurrentPosition(success, error, options);
+        }, 100);
+      }
+
 
 
     })
