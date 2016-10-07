@@ -50,7 +50,12 @@ var status = 0;
 function success(pos) {
   // pos = pos;
 
-  $('.message').html('Found the hidden shape');
+  if(markers.length < 5) {
+    $('.message').html('Wait or other players to join, min 5');
+  } else {
+    $('.message').html('Found the hidden shape');
+  }
+
   updateGame(pos);
   // console.log(pos);
 }
@@ -103,6 +108,7 @@ function updateGame(pos) {
           }
         })  
       })
+
 
       console.log(distances);
       console.log(rel);
