@@ -55,3 +55,7 @@ video {
   background-image:      -o-linear-gradient(top, #333, #111);
   color: #fcfcfc;
 }
+
+.shape {
+	display: none;
+}

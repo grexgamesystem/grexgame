@@ -47,6 +47,14 @@ app.post('/api/ant/:action', function(request, response) {
 	}
 })
 
+app.post('/api/shape/end/:id', function(request, response) {
+	id = response.req.params.id;
+	console.log('ending game', id);
+	Location.endShapeGame(id, function(res) {
+		response.json(res);
+	});
+})
+
 app.post('/api/shape/:action', function(request, response) {
 	action = response.req.params.action;
 	if (action == 'player') {

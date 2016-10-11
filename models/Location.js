@@ -171,6 +171,16 @@ exports.getFood = function(gameId , res) {
 	});
 }
 
+exports.endShapeGame = function(gameId, res) {
+	Location.get(gameId, function(err, loc) {
+		
+		loc.is_active = 0;
+		loc.save()
+
+		res({'success' : 1})
+	});
+}
+
 function joinGame(game, result) {
 	Player.create([{
 		location_id: game.id
